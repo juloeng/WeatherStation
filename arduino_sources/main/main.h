@@ -8,13 +8,16 @@
 #define MAIN.h
 
 // --------------------------
-// Libraries
+// LIBRARIES
 // --------------------------
 #include <Adafruit_GFX.h>   
 #include <Adafruit_ST7789.h> 
 #include <SPI.h>
 #include <DHT11.h>
 
+// --------------------------
+// CONSTANTS
+// --------------------------
 #define TFT_MOSI 19
 #define TFT_SCLK 18
 #define TFT_CS 5
@@ -23,6 +26,9 @@
 #define TFT_BL 4
 #define BUTTON1_PIN 0 
 
+// --------------------------
+// MACROS
+// --------------------------
 extern Adafruit_ST7789 tft;
 extern DHT11 dht11;
 

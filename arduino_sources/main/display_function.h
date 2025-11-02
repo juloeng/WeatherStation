@@ -7,7 +7,11 @@
 #ifndef DISPLAY_FUNCTION.h
 #define DISPLAY_FUNCTION.h
 
-void getTempAndHumidity(int &temperature, int &humidity);
+// --------------------------
+// FUNCTIONS DECLARATION
+// --------------------------
+void getTempHum();
+void DisplayMeasures();
 void sensorError();
 void print_on_screen(int temp, int hum);
 

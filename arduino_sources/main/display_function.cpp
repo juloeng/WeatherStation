@@ -4,56 +4,83 @@
 // Description : Display temperature, humidity, date and time on display      //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "main.h"
+// --------------------------
+// LIBRARIES
+// --------------------------
+#include <main.h>
 #include <display_function.h>
 
-// Function to read temperature and humidity from the sensor 
-void getTempAndHumidity(int &temperature, int &humidity) {
-
-  int result = dht11.readTemperatureHumidity(temperature, humidity);
-  if (result == 0) {
-    
-    Serial.print("Temperature: "   + String(temperature) + "°C"   // Serial print debug for temperature
-                 "\tHumidity: "    + String(humidity)    + " %"); // Serial print debug for humidity
-    print_on_screen(temperature, humidity);                       // Function to print temperature and humidity on LCD screen
-  } 
-  else {
-    Serial.println(DHT11::getErrorString(result));
-    sensorError();
-  }
+// --------------------------
+// Main function to display temperature, humidity, date and time 
+// --------------------------
+void DisplayMeasures(){
+  // Manage screen setup 
+  digitalWrite(TFT_BL, HIGH);          // T-Display turn on Backlight
+  tft.setTextWrap(false);              // Do not return to 
+  tft.fillScreen(ST77XX_BLACK);        // Fill screen with black 
+  tft.setTextColor(ST77XX_WHITE);      // Set text color to white 
+  tft.setTextSize(2);                  // Set text size to 2 
+  tft.init(135, 240);                  // Initialize ST7789 240x135
+  tft.setRotation(2); 
+  getTempHum();  
 }
 
-// Function to return an error on LCD screen when the sensor is defective
-void sensorError() {
+// --------------------------
+// Read temperature and humidity from DHT11 sensor 
+// --------------------------
+void getTempHum(){
+  
+  // Variables init 
+  int temperature, humidity; 
+   
+  // Read from sensor 
+  int result = dht11.readTemperatureHumidity(temperature, humidity);
+  
+  // Sensor is not defective   
+  if (result == 0){
+    // Serial print temperature and humidity in console (for debug only) 
+    Serial.print("Temp: " + String(temperature) + "°C\tHum: " + String(humidity) + " %"); 
+    // Call the function to display temperature and humidity on screen 
+    print_on_screen(temperature, humidity);
+  } 
+  // Sensor is defective 
+  else{
+    // Serial print error logs (for debug only) 
+    Serial.println(DHT11::getErrorString(result));
+    // Call the function to display an error message on screen 
+    sensorError();
+  }
+  
+}
 
-  tft.enableDisplay(1);
+// --------------------------
+// Display temperature and humidity screen
+// --------------------------
+void print_on_screen(int temp, int hum) {
+
+  tft.enableDisplay(1);                 // Turn display on 
+  tft.setCursor(0, 30);                 // Set cursor on column 0 and row 30 
+  tft.println(String(temp) + "\x09 C"); // Display <Temperature> °C
+  tft.setCursor(0, 60);                 // Set cursor on column 0 and row 60
+  tft.println(String(hum) + "%");       // Display <Humidity> %
+  delay(5000);                          // 5 seconds delay
+  tft.fillScreen(ST77XX_BLACK);         // Fill screen with black              
+
+}
+
+// --------------------------
+// Display an error message when sensor is defective 
+// --------------------------
+void sensorError() {
   tft.setTextColor(ST77XX_RED);
-  tft.setTextSize(2);
   for (int i = 0; i < 10; i++) {
+    tft.enableDisplay(1);
     tft.setCursor(0, 30);
     tft.println("ERROR: ");
     tft.setCursor(0, 60);
     tft.println("defective sensor,"); 
     tft.setCursor(0, 90);
     tft.println("try to reset board!"); 
-    delay(500); 
-    tft.fillScreen(ST77XX_BLACK);
-    delay(100);
+    delay(10000);
   }
-  
-  tft.fillScreen(ST77XX_BLACK);
-
-}
-
-// Function to print temperature and humidity on LCD screen
-void print_on_screen(int temp, int hum) {
-
-  tft.enableDisplay(1);                                       // Switch LCD display on 
-  tft.setCursor(0, 30);                                       // Set cursor on column 0 and row 30 
-  tft.println("Temp\x82rature : " + String(temp) + "\x09 C"); // x09 is the hex ASCII code to print '°' character
-  tft.setCursor(0, 60);                                       // Set cursor on column 0 and row 60
-  tft.println("Humidit\x82    : " + String(hum) + "%");       // x82 is the hex ASCII code to print 'é' character (such a frenchy thing)
-  delay(5000);                                                // 5 seconds delay
-  tft.fillScreen(ST77XX_BLACK);
-
 }
